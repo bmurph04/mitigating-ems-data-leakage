@@ -14,12 +14,11 @@ from Models.helper import (get_activation, get_loss_function, get_metrics,
                            get_optimizer)
 from Models.types import DataType, ModelType
 from Results_Handler.results_handler import BestModel, output_results
-from tensorflow.keras import regularizers
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.layers import (Concatenate, Conv3D, Conv3DTranspose,
-                                     Dense, Dropout, Input, LocallyConnected2D,
-                                     Reshape)
-from tensorflow.keras.models import Model
+from keras import regularizers
+from keras.callbacks import EarlyStopping
+from keras.layers import (Concatenate, Conv3D, Conv3DTranspose,
+                           Dense, Dropout, Input, Reshape, TimeDistributed)
+from keras.models import Model
 
 FIXED_SETTINGS_FILE = "./Settings/CNN/settings_cnn_fixed.yaml"
 
@@ -67,15 +66,16 @@ class CNN:
         ].tolist()
 
         for f in features_names:
-            if isinstance(features_df.loc[f][FEATURE_SETTINGS_LABEL_INPUT_SHAPE], int):
-                sample_shape = features_df.loc[f][FEATURE_SETTINGS_LABEL_INPUT_SHAPE]
+            raw_val = features_df.loc[f][FEATURE_SETTINGS_LABEL_INPUT_SHAPE]
+            if isinstance(raw_val, (int, np.integer)):
+                sample_shape = (int(raw_val),)
+            elif isinstance(raw_val, str):
+                sample_shape = tuple(int(i.strip()) for i in raw_val.split(",") if i.strip())
+            elif isinstance(raw_val, (tuple, list)):
+                sample_shape = tuple(int(i) for i in raw_val)
             else:
-                sample_shape = tuple(
-                    int(i)
-                    for i in features_df.loc[f][
-                        FEATURE_SETTINGS_LABEL_INPUT_SHAPE
-                    ].split(",")
-                )
+                sample_shape = (int(raw_val),)
+                
             inputs = Input(shape=sample_shape)
             concatenation.append(inputs)
         return concatenation
@@ -199,7 +199,10 @@ class CNN:
             )
 
         # locally connected to 1d array
-        outputs = LocallyConnected2D(1, kernel_size=(1, 1))(temporal_fused_layer)
+        outputs = Reshape((nrRows * nrCols, self.nrFilters_3dconv_3))(temporal_fused_layer)
+        outputs = TimeDistributed(Dense(1))(outputs)
+        outputs = Reshape((nrRows, nrCols))(outputs)
+        
         if self.activation_local_con is not None:
             outputs = self.activation_local_con(outputs)
         outputs = Reshape((nrRows * nrCols,))(outputs)
@@ -302,6 +305,11 @@ def run_CNN(
     # Compile and fit model
     model.compile(loss=cnn.loss_function, optimizer=cnn.optimizer, metrics=cnn.metrics)
 
+    X_train = [np.asarray(x, dtype=np.float32) for x in X_train]
+    X_test = [np.asarray(x, dtype=np.float32) for x in X_test]
+    y_train = np.asarray(y_train, dtype=np.float32)
+    y_test = np.asarray(y_test, dtype=np.float32)
+    
     start = time.time()
     history = model.fit(
         x=X_train,

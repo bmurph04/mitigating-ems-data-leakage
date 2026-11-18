@@ -1,12 +1,12 @@
 from typing import Any, List, Optional, Union
 
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.layers import ELU, LeakyReLU, ReLU
-from tensorflow.keras.losses import MSE, Loss
-from tensorflow.keras.metrics import MeanSquaredError, RootMeanSquaredError
-from tensorflow.keras.optimizers import SGD, Adam
-
+import keras
+from keras.layers import ELU, LeakyReLU, ReLU
+from keras.losses import Loss, MeanSquaredError as MSE_Loss  # keras 3 renames
+from keras.metrics import MeanSquaredError, RootMeanSquaredError
+from keras.optimizers import SGD, Adam  # no more .legacy submodule
+import keras.ops as ops
 
 def get_activation(name: str) -> Optional[Union[LeakyReLU, ReLU, ELU]]:
     """Returns keras activation object based on provided name (String)
@@ -50,7 +50,7 @@ def get_optimizer(name: str, learning_rate: float) -> Union[SGD, Adam]:
     raise ValueError(name, ": no valid loss function name")
 
 
-def get_loss_function(name: str) -> MSE:
+def get_loss_function(name: str) -> MSE_Loss:
     """Returns keras loss function based on provided name (String)
 
     Parameters:
@@ -63,7 +63,7 @@ def get_loss_function(name: str) -> MSE:
     """
 
     if name == "MSE":
-        return MSE
+        return MSE_Loss()
 
     if name == "Custom_MSE":
         return CustomMSE()
@@ -75,14 +75,8 @@ class CustomMSE(Loss):
     def __init__(self):
         super().__init__()
 
-    def call(self, y_true: np.ndarray, y_pred: np.ndarray):
-
-        return tf.reduce_mean(
-            tf.math.multiply(
-                tf.math.square(y_pred - y_true), tf.math.square(y_true + 1)
-            ),
-            axis=-1,
-        )
+    def call(self, y_true, y_pred):
+        return ops.mean(ops.multiply(ops.square(y_pred - y_true), ops.square(y_true + 1)), axis=-1)
 
 
 def get_metrics(*names) -> List[Union[MeanSquaredError, RootMeanSquaredError]]:

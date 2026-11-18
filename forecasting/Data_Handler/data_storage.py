@@ -92,7 +92,7 @@ class DataStorage:
         """
 
         features_df = self.get_filtered_features_df()
-        self.sort_features_df(features_df)
+        features_df = self.sort_features_df(features_df)
 
         if include_historic_ambulance_demand:
             return [Feature_w_Time.AMBULANCE_DEMAND_HISTORY] + list(
@@ -119,7 +119,7 @@ class DataStorage:
         """
 
         features_df = self.get_filtered_features_df()
-        self.sort_features_df(features_df)
+        features_df = self.sort_features_df(features_df)
 
         features_dict = {}
         if include_historic_ambulance_demand:
@@ -156,7 +156,7 @@ class DataStorage:
 
         if self.features_df is not None and update_data:
             # make sure features_df is in right order (needed for CNN)
-            self.sort_features_df(self.features_df)
+            self.features_df = self.sort_features_df(self.features_df)
             self.update_data_set(sortdf=False, data_types_to_update=data_types)
 
     def sort_features_df(self, features_df: pd.DataFrame):
@@ -166,14 +166,14 @@ class DataStorage:
             features_df: pd.DataFrame
                 Dataframe to be sorted inplace
         """
-        features_df.sort_values(
+        features_df = features_df.sort_values(
             by=[
                 FEATURE_SETTINGS_LABEL_CONCATENATION,
                 FEATURE_SETTINGS_LABEL_FEATURE_WO_TIME_NAME,
             ],
             ascending=[False, True],
-            inplace=True,
         )
+        return features_df
 
     def get_filtered_features_df(self) -> pd.DataFrame:
         """Creates a copy of <self.features_df> and filters it according to column
@@ -294,7 +294,7 @@ class DataStorage:
         # for this reason, we sort the dataframe correspondingly
         # if function is called when setting features_df, df is already sorted (therefore sortdf=False)
         if sortdf:
-            self.sort_features_df(features_df2)
+            features_df2 = self.sort_features_df(features_df2)
 
         # for data generation we need to add historic ambulance demand (normally not a feature)
         features = [Feature_w_Time.AMBULANCE_DEMAND_HISTORY]

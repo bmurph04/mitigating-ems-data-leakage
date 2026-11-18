@@ -2,7 +2,7 @@ from typing import Dict, List
 
 import numpy as np
 import pandas as pd
-from sodapy import Socrata
+# from sodapy import Socrata
 
 DATA_FILE_PATH_AMBULANCE_DEMAND = "./Data/Seattle_Real_Time_Fire_911_Calls.csv"
 DATASET_NAME_SEATTLE = "Seattle"
@@ -151,7 +151,8 @@ class HeatmapCube:
                     pd.cut(data.Datetime, time_intervals),
                     pd.cut(data.Latitude, int_lat),
                     pd.cut(data.Longitude, int_lon),
-                ]
+                ],
+                observed=False,
             )[DF_LABEL_INCIDENT_NR]
             .count()
             .reset_index(name=DF_LABEL_CALL_COUNTS)

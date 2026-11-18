@@ -13,7 +13,7 @@ from Data_Handler.feature_names import Feature_w_Time
 from Shap.shap_adapter import adapt_inputs, flatten_nested_list
 from tensorflow.keras import models
 
-tf.compat.v1.disable_eager_execution()
+# tf.compat.v1.disable_eager_execution()
 
 SHAP_OBJ_OUTPUT_NAME = "shap_obj.p"
 SHAP_VALUES_DF_OUTPUT_NAME = "shap_values_df.p"

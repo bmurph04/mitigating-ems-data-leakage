@@ -6,10 +6,10 @@ import sys
 
 import pandas as pd
 import yaml
-from Bayesian_Optimization.bayesian_optimization_handler import BO_Handler
-from Bayesian_Optimization.bayesian_optimization_hierarchical import \
-    run_hierarchical_bo
-from Bayesian_Optimization.helper import read_x0, read_y0
+# from Bayesian_Optimization.bayesian_optimization_handler import BO_Handler
+# from Bayesian_Optimization.bayesian_optimization_hierarchical import \
+#     run_hierarchical_bo
+# from Bayesian_Optimization.helper import read_x0, read_y0
 from Data_Handler.data_storage import get_data_storage
 from Models.cnn_generator import run_CNN
 from Models.medic import run_medic_method
@@ -161,6 +161,10 @@ if main_settings["run_model"]:
 
 # Bayesian Optimization
 if main_settings["run_BO"]:
+    from Bayesian_Optimization.bayesian_optimization_handler import BO_Handler
+    from Bayesian_Optimization.bayesian_optimization_hierarchical import \
+    run_hierarchical_bo
+    from Bayesian_Optimization.helper import read_x0, read_y0
 
     if modeltype not in {ModelType.CNN, ModelType.MLP}:
         raise ValueError("BO not implemented for tree-based models.")
@@ -204,6 +208,10 @@ if main_settings["run_BO"]:
 
 # Hierarchical BO
 if main_settings["run_hierarchical_BO"]:
+    from Bayesian_Optimization.bayesian_optimization_handler import BO_Handler
+    from Bayesian_Optimization.bayesian_optimization_hierarchical import \
+        run_hierarchical_bo
+    from Bayesian_Optimization.helper import read_x0, read_y0
     if modeltype not in {ModelType.CNN, ModelType.MLP}:
         raise ValueError("BO not implemented for tree-based models.")
 

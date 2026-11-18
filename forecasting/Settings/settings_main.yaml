@@ -1,9 +1,9 @@
 ---
   # 1. General Settings
-  start: '2020-01-01 00:00:00'
-  end: '2022-01-01 00:00:00'
+  start: '2022-01-01 00:00:00'
+  end: '2024-01-01 00:00:00'
   total_look_back: 6 
-  time_interval: 8H
+  time_interval: 8h
   nrRows: 11 # ~2.5km
   nrCols: 6 # ~2.5km
   calldata: 'Seattle' 
@@ -13,8 +13,8 @@
   max_lon: -122.232596
   incident_types: 'Medic Response' 
   shorten_one_hot: True # If true, one-hot encoded vectors are optimized
-  load_data_storage_path: './Data/data_storage_8h_medic.p' # path to data storage, if not existant, new data storage is created
-  save_data_storage_path: # path where to save data storage, if None, data storage is not saved
+  load_data_storage_path: 'Data/data_storage_8h_medic.pkl' # path to data storage, if not existant, new data storage is created
+  save_data_storage_path: 'Data/data_storage_8h_medic.pkl' # path where to save data storage, if None, data storage is not saved
   features_csv: './Settings/Features/Feature_Settings.csv' #path to .csv containing feature settings
 
   # 2. Define Action and adapt settings in the following sections
@@ -30,8 +30,8 @@
   output_data: True # If True, training & test data sets are saved in output_path 
 
   # 4. Only for A), B), C) and D): General Model Settings
-  model: 'MLP' # Options: "CNN" / "MLP" / "RandomForest" / "DecisionTree"
-  model_settings: './Settings/MLP/settings_mlp.yaml'
+  model: 'CNN' # Options: "CNN" / "MLP" / "RandomForest" / "DecisionTree"
+  model_settings: './Settings/CNN/settings_cnn.yaml'
 
   # 5. Additional settings dependent which action you defined in section 2
   #   B) Bayesian Optimization
@@ -70,7 +70,7 @@
   n_estimators_setpsize: 50 # only used for RF
 
   #   E) MEDIC method
-  medic_earlierst_data: '2017-06-01 00:00:00' # data earlier than this date not considered in calculations
+  medic_earlierst_data: '2016-01-01 00:00:00' # data earlier than this date not considered in calculations
   nr_weeks_to_include: 4
   nr_years_to_include: 5 
 

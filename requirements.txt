@@ -1,0 +1,16 @@
+tensorflow>=2.19
+# OR for Keras 3 standalone:
+# keras>=3.7
+numpy>=2.1
+pandas>=2.2
+scikit-learn>=1.6
+optuna>=4.1          # replaces scikit-optimize
+shap>=0.46
+geopandas>=1.0
+shapely>=2.0.4
+rasterio>=1.4
+PyYAML>=6.0.2
+requests>=2.32
+# REMOVED: pygeoj (replaced by geopandas)
+# REMOVED: scikit-optimize (replaced by optuna)
+# REMOVED: sodapy (can use requests directly for Socrata API)

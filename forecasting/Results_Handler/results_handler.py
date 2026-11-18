@@ -11,7 +11,7 @@ from Data_Handler.feature_names import Feature_w_Time
 from Models.types import ModelType
 from sklearn import tree
 from sklearn.ensemble import RandomForestRegressor
-from tensorflow.keras import models
+from keras import models
 
 
 def output_results(
@@ -76,7 +76,13 @@ def output_results(
             hist_csv_file = f"{output_path}/history_MLP.csv"
 
         # headers
-        headers.extend([*model.model.metrics_names])
+        metric_names = [m.name for m in model.model.metrics]
+        if "loss" not in metric_names:
+            metric_names = ["loss"] + metric_names
+        # Fallback if length still doesn't match score length:
+        if len(metric_names) != len(score):
+            metric_names = [f"metric_{i}" for i in range(len(score))]
+        headers.extend(metric_names)
         results.extend([*score])
 
         # Print learning history to csv (only applicable to neural nets)
@@ -227,7 +233,7 @@ class BestModel:
                 self.best_model, (tree.DecisionTreeRegressor, RandomForestRegressor)
             )
         ):
-            self.best_model.save(f"{output_path}/model.h5")
+            self.best_model.save(f"{output_path}/model.keras")
         else:
             with open(f"{output_path}/model.p", "wb") as file:
                 pickle.dump(self.best_model, file)

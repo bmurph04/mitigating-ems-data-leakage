@@ -2,14 +2,12 @@ from ast import literal_eval
 from typing import Any, List, Optional, Tuple, Union
 
 import pandas as pd
-from skopt import Space
-from skopt.space import Categorical, Integer, Real
 from tensorflow.keras import layers, losses, metrics, optimizers
 
 FEATURES_RESULTS_LABEL = "features"
 
 
-def read_space(csv_name: str) -> List[Union[Integer, Real, Categorical]]:
+def read_space(csv_name: str): # -> List[Union[Integer, Real, Categorical]]:
     """Generates space array with Space objects from csv
 
     Parameters:
@@ -20,6 +18,8 @@ def read_space(csv_name: str) -> List[Union[Integer, Real, Categorical]]:
     space: list(skopt.space.Real, skopt.space.Integer or skopt.space.Categorical)
         List with space dimensions (Real, Categorical and Integer)
     """
+    from skopt import Space
+    from skopt.space import Categorical, Integer, Real
     x = pd.read_csv(csv_name, delimiter=";")
     space = []
     for row in x.itertuples():
@@ -213,7 +213,7 @@ def replace_objects(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def results_extract_x0_y0(
-    space: Space,
+    space,
     y0_name: str,
     results_csv: str,
     feature_selection: bool = False,

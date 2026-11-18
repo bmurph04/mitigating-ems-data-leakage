@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
-import pygeoj
+import geopandas as gpd
 from shapely.geometry import Polygon
 
 DATA_FILE_PATH_EVENTS = "./Data/Special_Events_Permits_Seattle.csv"
@@ -60,7 +60,9 @@ class EventCube:
         event_cube = self.__generate_event_cube(
             events_df, time_intervals, neighborhood_area_intersects, nrRows, nrCols
         )
-        event_cube = event_cube / np.max(event_cube)  # normalize
+        max_val = np.max(event_cube)
+        if max_val > 0:
+            event_cube = event_cube / max_val  # normalize
         self.__event_cube = event_cube
 
     def get_event_cube(self) -> np.ndarray:
@@ -96,16 +98,17 @@ class EventCube:
         )
 
         # Remove all cancelled events and events for which no location is given
+        if events_df.empty or "Status" not in events_df.columns:
+            return events_df
         events_df = events_df.drop(events_df[events_df.Status == "Cancelled"].index)
         events_df = events_df[events_df[COLUMN_LABEL_NEIGHBORHOOD].notna()]
 
         # Downtown corresponds to several neighborhood, Capitol Hill corresponds to Broadway
-        events_df[COLUMN_LABEL_NEIGHBORHOOD].replace(
+        events_df[COLUMN_LABEL_NEIGHBORHOOD] = events_df[COLUMN_LABEL_NEIGHBORHOOD].replace(
             {
                 "Downtown": "Pioneer Square, International District, Yesler Terrace, Central Business District, Pike-Market, Belltown",
                 "Capitol Hill": "Broadway",
-            },
-            inplace=True,
+            }
         )
 
         # Correct column types (dates)
@@ -185,7 +188,7 @@ class EventCube:
         GeojsonFile
             A GeojsonFile instance
         """
-        return pygeoj.load(filepath=DATA_FILE_PATH_NEIGHBORHOODS)
+        return gpd.read_file(DATA_FILE_PATH_NEIGHBORHOODS)
 
     def __generate_area_polygons(
         self,
@@ -220,7 +223,7 @@ class EventCube:
                 i += 1
         return area_polygons
 
-    def __generate_neighborhood_polygons(self, jsonfile: Any) -> Dict[str, Polygon]:
+    def __generate_neighborhood_polygons(self, gdf: Any) -> Dict[str, Polygon]:
         """Generates dictionary with neighborhood name (key) and the corresponding polygon (value)
 
         Parameters:
@@ -232,14 +235,13 @@ class EventCube:
             dictionary including neighbourhood name (key) and corresponding polygon (value)
         """
         neighborhood_polygons = {}
-        for f in range(len(jsonfile)):
-            s_hood = jsonfile.get_feature(f).properties["S_HOOD"]
-            coordinates_list = jsonfile.get_feature(f).geometry.coordinates[0]
-            coordinates_tuples = [tuple(l) for l in coordinates_list]
+        for _, row in gdf.iterrows():
+            s_hood = row.get("S_HOOD", "Unknown")
             if s_hood not in ("OOO", " "):
-                neighborhood_polygons[s_hood] = Polygon(coordinates_tuples)
-        return neighborhood_polygons
+                neighborhood_polygons[s_hood] = row.geometry
 
+        return neighborhood_polygons
+    
     def __generate_neighborhood_area_intersec(
         self,
         nrRows: int,

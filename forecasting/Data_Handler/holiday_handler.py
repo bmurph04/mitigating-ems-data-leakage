@@ -73,7 +73,7 @@ class HolidayHandler:
                     > d
                 )
             ].count()
-            if count[0] > 0:
+            if len(count) > 0:
                 school_hol_list.append(1)
             else:
                 school_hol_list.append(0)

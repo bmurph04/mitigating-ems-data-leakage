@@ -48,11 +48,12 @@ def read_features_df(csv_name: str) -> pd.DataFrame:
         csv_name,
         sep=";",
         dtype={
-            FEATURE_SETTINGS_LABEL_ONE_HOT_ENCODING: np.bool,
-            FEATURE_SETTINGS_LABEL_TRANSPOSE: np.bool,
-            FEATURE_SETTINGS_LABEL_INCLUSION: np.bool,
+            FEATURE_SETTINGS_LABEL_ONE_HOT_ENCODING: bool,
+            FEATURE_SETTINGS_LABEL_TRANSPOSE: bool,
+            FEATURE_SETTINGS_LABEL_INCLUSION: bool,
         },
     )
+    features_df[FEATURE_SETTINGS_LABEL_INPUT_SHAPE] = features_df[FEATURE_SETTINGS_LABEL_INPUT_SHAPE].astype(object)
 
     try:
         # replace str values by objects
@@ -195,7 +196,7 @@ def add_feature_data_to_data_storage(
             features_df.loc[
                 features_df[FEATURE_SETTINGS_LABEL_FEATURE_W_TIME] == feature_w_time,
                 FEATURE_SETTINGS_LABEL_INPUT_SHAPE,
-            ] = len(data_storage.X_value_sets[data_type][feature_w_time])
+            ] = int(len(data_storage.X_value_sets[data_type][feature_w_time]))
 
         elif feature in {
             Feature_wo_Time.PUBLIC_HOLIDAYS,
